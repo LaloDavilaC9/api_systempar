@@ -38,5 +38,21 @@ module.exports = {
       });
     },
 
+    crearSolicitud: (connection, body, callback) => {
+      console.log("Llega: "+body.solicitud_fecha);
+      connection.query("insert into solicitud SET ?", body, (err, results) => {
+        if (err) {
+          callback({
+            array: null,
+            id: null,
+            success: false,
+            err: JSON.stringify(err),
+          });
+          return;
+        }
+        callback({ array: null, id: null, success: true });
+      });
+    },
+
   };
   
