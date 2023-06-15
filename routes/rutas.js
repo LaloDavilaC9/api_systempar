@@ -13,6 +13,14 @@ router.get("/login/:idAlumno", [], (req, res) => {
   });
 });
 
+router.get("/enProcesoAlumno/:idAlumno", [], (req, res) => {
+  //console.log("Desde antes: "+req.params.usuario);
+  const idAlumno = req.params.idAlumno;
+  user.enProcesoAlumno(connection, idAlumno,(data) => {
+    res.json(data);
+  });
+});
+
 router.get("/solicitudes/:planId/:semestre", [], (req, res) => {
   //console.log("Desde antes: "+req.params.usuario);
   const idPlan = req.params.planId;
