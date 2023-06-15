@@ -38,9 +38,45 @@ module.exports = {
       });
     },
 
-    crearSolicitud: (connection, body, callback) => {
+    crearSolicitud: (connection, body, alumno_id, callback) => {
       console.log("Llega: "+body.solicitud_fecha);
-      connection.query("insert into solicitud SET ?", body, (err, results) => {
+      let bodyFiltrado = body
+      delete bodyFiltrado.alumno_id
+      connection.query("insert into solicitud SET ?", bodyFiltrado, (err, results) => {
+        if (err) {
+          callback({
+            array: null,
+            id: null,
+            success: false,
+            err: JSON.stringify(err),
+          });
+          return;
+        }
+        callback({ array: null, id: null, success: true });
+      });
+    },
+
+    ultimaSolicitud: (connection, alumno_id, callback) => {
+      let query = "SELECT * FROM SOLICITUD ORDER BY solicitud_id DESC LIMIT 1";
+      id = connection.query(query, (err, results) => {
+        if (err) {
+          callback({
+            array: null,
+            id: null,
+            success: false,
+            err: JSON.stringify(err),
+          });
+          return;
+        }
+        //console.log("Results son: "+results);
+        callback({ array: results, id: null, success: true });
+      });
+    },
+
+    insertarAlumnoSolicitud: (connection, alumno_id,solicitud_id, callback) => {
+      //console.log("Llega: "+body.solicitud_fecha);
+      let query = "insert into alumno_solicitud (alumno_id,solicitud_id,alumno_encargado,alumno_asistencia) VALUES ("+alumno_id+","+solicitud_id+",0,0)";
+      connection.query(query, (err, results) => {
         if (err) {
           callback({
             array: null,
