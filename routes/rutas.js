@@ -38,6 +38,30 @@ router.get("/solicitudes/:planId/:semestre", [], (req, res) => {
     res.json(data);
   });
 });
+
+router.get("/solicitudesTutor/:idTutor", [], (req, res) => {
+  //console.log("Desde antes: "+req.params.usuario);
+  const idTutor = req.params.idTutor;
+  user.solicitudesTutor(connection, idTutor,(data) => {
+    res.json(data);
+  });
+});
+
+router.get("/enProcesoTutor/:idTutor", [], (req, res) => {
+  //console.log("Desde antes: "+req.params.usuario);
+  const idTutor = req.params.idTutor;
+  user.enProcesoTutor(connection, idTutor,(data) => {
+    res.json(data);
+  });
+});
+
+router.get("/proximasTutor/:idTutor", [], (req, res) => {
+  //console.log("Desde antes: "+req.params.usuario);
+  const idTutor = req.params.idTutor;
+  user.proximasTutor(connection, idTutor,(data) => {
+    res.json(data);
+  });
+});
   
 
 router.post(

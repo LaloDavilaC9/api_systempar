@@ -2,7 +2,9 @@ module.exports = {
     
     login: (connection, id_Alumno,callback) => {
       //console.log("ALUMNO "+id_Alumno);
-      let query = "SELECT * FROM Alumno WHERE alumno_id = "+id_Alumno;
+      //let query = "SELECT s.solicitud_id, s.solicitud_fecha, s.solicitud_urgencia, m.materia_nombre, s.solicitud_tema, s.solicitud_descripcion, s.solicitud_fecha_programacion, s.solicitud_lugar, s.solicitud_modalidad, s.solicitud_vigente, s.asesoria_evidencia, s.asesoria_calificacion, mt.tutor_id FROM solicitud s JOIN materia_tutor mt ON s.materia_id = mt.materia_id JOIN materia m ON mt.materia_id = m.materia_id WHERE mt.tutor_id = 1 AND EXISTS (SELECT 1 FROM Alumno WHERE alumno_id = "+ id_Alumno+");"
+      let query = "SELECT a.*, IFNULL(t.tutor_id, 0) AS tutor_id FROM Alumno a LEFT JOIN tutor t ON a.alumno_id = t.alumno_id WHERE a.alumno_id = "+id_Alumno;
+    //"SELECT * FROM Alumno WHERE alumno_id = "+id_Alumno;
       //let query = "select id from administradores where usuario ='lalodavilac9'";
       connection.query(query, (err, results) => {
         if (err) {
@@ -124,6 +126,62 @@ module.exports = {
           return;
         }
         callback({ array: null, id: null, success: true });
+      });
+    },
+
+    
+    solicitudesTutor: (connection, tutor_id, callback) => {
+      let query = "SELECT s.solicitud_id, s.solicitud_fecha, s.solicitud_urgencia, m.materia_nombre, s.solicitud_tema, s.solicitud_descripcion, s.solicitud_fecha_programacion, s.solicitud_lugar, s.solicitud_modalidad, s.solicitud_vigente, s.asesoria_evidencia, s.asesoria_calificacion, CONCAT(a.alumno_nombre, ' ', a.alumno_apellidos) AS tutor_nombre_completo, a.alumno_correo, a.alumno_telefono FROM solicitud s JOIN materia_tutor mt ON s.materia_id = mt.materia_id JOIN materia m ON mt.materia_id = m.materia_id JOIN tutor t ON mt.tutor_id = t.tutor_id JOIN alumno_solicitud als ON s.solicitud_id = als.solicitud_id JOIN alumno a ON als.alumno_id = a.alumno_id WHERE mt.tutor_id = "+tutor_id+" AND s.tutor_id IS NULL;";
+     
+      id = connection.query(query, (err, results) => {
+        if (err) {
+          callback({
+            array: null,
+            id: null,
+            success: false,
+            err: JSON.stringify(err),
+          });
+          return;
+        }
+        //console.log("Results son: "+results);
+        callback({ array: results, id: null, success: true });
+      });
+    },
+
+    enProcesoTutor: (connection, tutor_id, callback) => {
+      let query = "SELECT s.*, m.materia_nombre, CONCAT(a.alumno_nombre, ' ', a.alumno_apellidos) AS tutor_nombre_completo, a.alumno_correo, a.alumno_telefono FROM solicitud s JOIN materia m ON s.materia_id = m.materia_id JOIN alumno a ON a.alumno_id = s.tutor_id WHERE s.tutor_id = "+tutor_id+" AND s.solicitud_fecha_programacion IS NULL;";
+     
+      id = connection.query(query, (err, results) => {
+        if (err) {
+          callback({
+            array: null,
+            id: null,
+            success: false,
+            err: JSON.stringify(err),
+          });
+          return;
+        }
+        //console.log("Results son: "+results);
+        callback({ array: results, id: null, success: true });
+      });
+    },
+
+    
+    proximasTutor: (connection, tutor_id, callback) => {
+      let query = "SELECT s.*, m.materia_nombre, CONCAT(a.alumno_nombre, ' ', a.alumno_apellidos) AS tutor_nombre_completo, a.alumno_correo, a.alumno_telefono FROM solicitud s JOIN materia m ON s.materia_id = m.materia_id JOIN alumno a ON a.alumno_id = s.tutor_id WHERE s.tutor_id = "+tutor_id+" AND s.solicitud_fecha_programacion IS NOT NULL;";
+     
+      id = connection.query(query, (err, results) => {
+        if (err) {
+          callback({
+            array: null,
+            id: null,
+            success: false,
+            err: JSON.stringify(err),
+          });
+          return;
+        }
+        //console.log("Results son: "+results);
+        callback({ array: results, id: null, success: true });
       });
     },
 
