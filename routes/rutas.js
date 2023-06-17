@@ -82,8 +82,8 @@ router.post(
     }
     let body = req.body;
     //body.telefono = body.telefono.replaceAll(" ","");
-    console.log("Llega ");
-    console.log(body.alumno_id);
+    //console.log("Llega ");
+    //console.log(body.alumno_id);
     let alumno_id = body.alumno_id
     user.crearSolicitud(connection, body, alumno_id, (data) => {
       user.ultimaSolicitud(connection,alumno_id,(ultimaSolicitudData) =>{
@@ -105,10 +105,7 @@ router.post(
       return;
     }
     let body = req.body;
-    //body.telefono = body.telefono.replaceAll(" ","");
-    //console.log("Llega ");
-    //console.log(body.alumno_id);
-    //let alumno_id = body.alumno_id
+
     user.aceptarSolicitud(connection, body, (data) => {
       res.json(data);
 
