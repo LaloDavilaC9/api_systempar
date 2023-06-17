@@ -131,7 +131,27 @@ module.exports = {
 
     
     solicitudesTutor: (connection, tutor_id, callback) => {
-      let query = "SELECT s.solicitud_id, s.solicitud_fecha, s.solicitud_urgencia, m.materia_nombre, s.solicitud_tema, s.solicitud_descripcion, s.solicitud_fecha_programacion, s.solicitud_lugar, s.solicitud_modalidad, s.solicitud_vigente, s.asesoria_evidencia, s.asesoria_calificacion, CONCAT(a.alumno_nombre, ' ', a.alumno_apellidos) AS tutor_nombre_completo, a.alumno_correo, a.alumno_telefono FROM solicitud s JOIN materia_tutor mt ON s.materia_id = mt.materia_id JOIN materia m ON mt.materia_id = m.materia_id JOIN tutor t ON mt.tutor_id = t.tutor_id JOIN alumno_solicitud als ON s.solicitud_id = als.solicitud_id JOIN alumno a ON als.alumno_id = a.alumno_id WHERE mt.tutor_id = "+tutor_id+" AND s.tutor_id IS NULL;";
+   
+
+        let query = `
+        SELECT s.solicitud_id, s.solicitud_fecha, s.solicitud_urgencia, m.materia_nombre,
+        s.solicitud_tema, s.solicitud_descripcion, s.solicitud_fecha_programacion,
+        s.solicitud_lugar, s.solicitud_modalidad, s.solicitud_vigente, s.asesoria_evidencia,
+        s.asesoria_calificacion, CONCAT(a.alumno_nombre, ' ', a.alumno_apellidos) AS tutor_nombre_completo,
+        a.alumno_correo, a.alumno_telefono
+        FROM solicitud s
+        JOIN materia_tutor mt ON s.materia_id = mt.materia_id
+        JOIN materia m ON mt.materia_id = m.materia_id
+        JOIN tutor t ON mt.tutor_id = t.tutor_id
+        JOIN alumno_solicitud als ON s.solicitud_id = als.solicitud_id
+        JOIN alumno a ON als.alumno_id = a.alumno_id
+        WHERE mt.tutor_id = ${tutor_id}
+          AND s.tutor_id IS NULL
+          AND (s.solicitud_rechazados IS NULL OR NOT FIND_IN_SET(mt.tutor_id, s.solicitud_rechazados));
+ 
+
+        `;
+        console.log(query);
      
       id = connection.query(query, (err, results) => {
         if (err) {
@@ -209,13 +229,17 @@ module.exports = {
       let query2 = "";
     
       if (body.quien == 'alumno') {
-        // El que canceló es el alumno
+        // El que canceló fue el alumno
         query = `DELETE FROM alumno_solicitud WHERE solicitud_id = ${body.solicitud_id}`;
         query2 = `DELETE FROM solicitud WHERE solicitud_id = ${body.solicitud_id}`;
         console.log(query);
         console.log(query2);
       } else {
-        query = `UPDATE solicitud SET tutor_id = NULL, solicitud_fecha_programacion = NULL, solicitud_lugar = NULL WHERE solicitud_id = ${body.solicitud_id}`;
+        //El que canceló fue el tutor
+        query = `UPDATE solicitud SET tutor_id = NULL, solicitud_fecha_programacion = NULL, solicitud_lugar = NULL, 
+        solicitud_rechazados = CONCAT_WS(',', IFNULL(solicitud_rechazados, ''), '${body.tutor_id}')
+        WHERE solicitud_id = ${body.solicitud_id}`;
+        console.log(query);
       }
     
       try {
