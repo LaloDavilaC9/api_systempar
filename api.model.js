@@ -22,7 +22,7 @@ module.exports = {
     },
 
     enProcesoAlumno: (connection, id_Alumno,callback) => {
-      let query = "SELECT m.materia_nombre, CONCAT(a.alumno_nombre, ' ', a.alumno_apellidos) AS tutor_nombre_completo, a.alumno_telefono, a.alumno_correo, s.solicitud_descripcion, s.solicitud_tema, "+
+      let query = "SELECT m.materia_nombre, CONCAT(a.alumno_nombre, ' ', a.alumno_apellidos) AS tutor_nombre_completo, a.alumno_telefono, a.alumno_correo, s.solicitud_descripcion, s.solicitud_id, s.solicitud_tema, "+
       "s.solicitud_modalidad, s.solicitud_lugar, s.solicitud_urgencia FROM solicitud AS s INNER JOIN materia AS m ON s.materia_id = m.materia_id "+
       "LEFT JOIN tutor AS t ON s.tutor_id = t.tutor_id LEFT JOIN alumno AS a ON t.alumno_id = a.alumno_id WHERE s.solicitud_fecha_programacion IS NULL AND EXISTS "+
       "(SELECT 1 FROM alumno_solicitud AS al WHERE al.solicitud_id = s.solicitud_id AND al.alumno_id = "+id_Alumno+");";
@@ -41,7 +41,7 @@ module.exports = {
     },
 
     proximasAlumno: (connection, id_Alumno,callback) => {
-      let query = "SELECT m.materia_nombre, CONCAT(a.alumno_nombre, ' ', a.alumno_apellidos) AS tutor_nombre_completo, a.alumno_telefono, a.alumno_correo, s.solicitud_descripcion, s.solicitud_tema, "+
+      let query = "SELECT m.materia_nombre, CONCAT(a.alumno_nombre, ' ', a.alumno_apellidos) AS tutor_nombre_completo, a.alumno_telefono, a.alumno_correo, s.solicitud_id, s.solicitud_descripcion, s.solicitud_tema, "+
       "s.solicitud_modalidad, s.solicitud_lugar, s.solicitud_urgencia, s.solicitud_fecha_programacion FROM solicitud AS s INNER JOIN materia AS m ON s.materia_id = m.materia_id "+
       "LEFT JOIN tutor AS t ON s.tutor_id = t.tutor_id LEFT JOIN alumno AS a ON t.alumno_id = a.alumno_id WHERE s.solicitud_fecha_programacion IS NOT NULL AND EXISTS "+
       "(SELECT 1 FROM alumno_solicitud AS al WHERE al.solicitud_id = s.solicitud_id AND al.alumno_id = "+id_Alumno+");";
@@ -185,5 +185,72 @@ module.exports = {
       });
     },
 
+    aceptarSolicitud: (connection,body, callback) => {
+      //console.log("Llega: "+body.solicitud_fecha);
+      //let query = "insert into alumno_solicitud (alumno_id,solicitud_id,alumno_encargado,alumno_asistencia) VALUES ("+alumno_id+","+solicitud_id+",0,0)";
+      let query = "UPDATE solicitud SET tutor_id = "+body.tutor_id+" WHERE solicitud_id = "+body.solicitud_id;
+      console.log(query);
+      connection.query(query, (err, results) => {
+        if (err) {
+          callback({
+            array: null,
+            id: null,
+            success: false,
+            err: JSON.stringify(err),
+          });
+          return;
+        }
+        callback({ array: null, id: null, success: true });
+      });
+    },
+
+     cancelarSolicitud : async (connection, body, callback) => {
+      let query = "";
+      let query2 = "";
+    
+      if (body.quien == 'alumno') {
+        // El que canceló es el alumno
+        query = `DELETE FROM alumno_solicitud WHERE solicitud_id = ${body.solicitud_id}`;
+        query2 = `DELETE FROM solicitud WHERE solicitud_id = ${body.solicitud_id}`;
+        console.log(query);
+        console.log(query2);
+      } else {
+        query = `UPDATE solicitud SET tutor_id = NULL, solicitud_fecha_programacion = NULL, solicitud_lugar = NULL WHERE solicitud_id = ${body.solicitud_id}`;
+      }
+    
+      try {
+        await connection.promise().query(query);
+        if (query2) {
+          await connection.promise().query(query2);
+        }
+        callback({ array: null, id: null, success: true });
+      } catch (error) {
+        callback({
+          array: null,
+          id: null,
+          success: false,
+          err: JSON.stringify(error),
+        });
+      }
+    },  
+    
+    programarSolicitud: (connection,body, callback) => {
+      //console.log("Llega: "+body.solicitud_fecha);
+      //let query = "insert into alumno_solicitud (alumno_id,solicitud_id,alumno_encargado,alumno_asistencia) VALUES ("+alumno_id+","+solicitud_id+",0,0)";
+      let query = "UPDATE solicitud SET solicitud_fecha_programacion = '"+body.fecha_programacion+"', solicitud_lugar = '"+body.lugar+"' WHERE solicitud_id = "+body.solicitud_id;
+      console.log(query);
+      connection.query(query, (err, results) => {
+        if (err) {
+          callback({
+            array: null,
+            id: null,
+            success: false,
+            err: JSON.stringify(err),
+          });
+          return;
+        }
+        callback({ array: null, id: null, success: true });
+      });
+    },
   };
   

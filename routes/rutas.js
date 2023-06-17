@@ -86,12 +86,7 @@ router.post(
     console.log(body.alumno_id);
     let alumno_id = body.alumno_id
     user.crearSolicitud(connection, body, alumno_id, (data) => {
-      //res.json(data);
-      //console.log("La respuesta es: "+data);
-      console.log("Llega ");
-    console.log(alumno_id);
       user.ultimaSolicitud(connection,alumno_id,(ultimaSolicitudData) =>{
-        //res.json(ultimaSolicitudData);
         user.insertarAlumnoSolicitud(connection,alumno_id,ultimaSolicitudData.array[0].solicitud_id,(insertAlumnoData) =>{
           res.json(insertAlumnoData);
         });
@@ -99,6 +94,68 @@ router.post(
     });
   }
 );
+
+router.post(
+  "/aceptarSolicitud",
+  (req, res) => {
+    
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      res.json({ success: false, err: JSON.stringify(errors) });
+      return;
+    }
+    let body = req.body;
+    //body.telefono = body.telefono.replaceAll(" ","");
+    //console.log("Llega ");
+    //console.log(body.alumno_id);
+    //let alumno_id = body.alumno_id
+    user.aceptarSolicitud(connection, body, (data) => {
+      res.json(data);
+
+    });
+  }
+);
+
+router.post(
+  "/cancelarSolicitud",
+  (req, res) => {
+    
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      res.json({ success: false, err: JSON.stringify(errors) });
+      return;
+    }
+    let body = req.body;
+    
+    
+    user.cancelarSolicitud(connection, body, (data) => {
+      res.json(data);
+
+    });
+  }
+);
+
+router.post(
+  "/programarSolicitud",
+  (req, res) => {
+    
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      res.json({ success: false, err: JSON.stringify(errors) });
+      return;
+    }
+    let body = req.body;
+    
+    
+    user.programarSolicitud(connection, body, (data) => {
+      res.json(data);
+
+    });
+  }
+);
+
+
+
   /*const responseData = {
           alumno_id: body.alumno_id,
           ultimaSolicitud: ultimaSolicitudData
