@@ -365,7 +365,7 @@ module.exports = {
       FROM materia m
       JOIN materia_plan mp ON m.materia_id = mp.materia_id
       JOIN alumno a ON mp.semestre < a.alumno_semestre
-      WHERE a.alumno_id = ${idAlumno};      
+      WHERE a.alumno_id = ${idAlumno} AND a.plan_id = mp.plan_id;      
       `;
      
       id = connection.query(query, (err, results) => {
