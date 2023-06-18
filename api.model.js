@@ -173,8 +173,10 @@ module.exports = {
     enProcesoTutor: (connection, tutor_id, callback) => {
       let query = `
       SELECT s.*, m.materia_nombre, CONCAT(a.alumno_nombre, ' ', a.alumno_apellidos) AS tutor_nombre_completo, 
-      a.alumno_correo, a.alumno_telefono FROM solicitud s INNER JOIN materia m ON s.materia_id = m.materia_id
-      INNER JOIN tutor t ON t.tutor_id = s.tutor_id INNER JOIN alumno a ON a.alumno_id = t.alumno_id
+      a.alumno_correo, a.alumno_telefono FROM solicitud s 
+      INNER JOIN materia m ON s.materia_id = m.materia_id
+      INNER JOIN alumno_solicitud asol ON asol.solicitud_id = s.solicitud_id 
+      INNER JOIN alumno a ON a.alumno_id = asol.alumno_id
       WHERE s.tutor_id = ${tutor_id}
       AND s.solicitud_fecha_programacion IS NULL;
       `;
@@ -199,9 +201,12 @@ module.exports = {
       let query = `
       SELECT s.*, m.materia_nombre, CONCAT(a.alumno_nombre, ' ', a.alumno_apellidos) AS tutor_nombre_completo, 
       a.alumno_correo, a.alumno_telefono FROM solicitud s 
-      INNER JOIN materia m ON s.materia_id = m.materia_id 
-      INNER JOIN tutor t ON t.tutor_id = s.tutor_id 
-      INNER JOIN alumno a ON a.alumno_id = t.alumno_id
+      
+      INNER JOIN materia m ON s.materia_id = m.materia_id
+      
+      INNER JOIN alumno_solicitud asol ON asol.solicitud_id = s.solicitud_id 
+      INNER JOIN alumno a ON a.alumno_id = asol.alumno_id
+      
       WHERE s.tutor_id = ${tutor_id}
       AND s.solicitud_fecha_programacion IS NOT NULL;`;
      
