@@ -446,5 +446,66 @@ module.exports = {
         );
       });
     },
+
+    finalizadasAlumno: (connection, idAlumno, callback) => {
+
+      let query = `
+        SELECT s.* FROM solicitud s INNER JOIN alumno_solicitud a ON s.solicitud_id = a.solicitud_id WHERE a.alumno_id = ${idAlumno} AND s.solicitud_vigente = 0;;
+      `;
+     
+      id = connection.query(query, (err, results) => {
+        if (err) {
+          callback({
+            array: null,
+            id: null,
+            success: false,
+            err: JSON.stringify(err),
+          });
+          return;
+        }
+        //console.log("Results son: "+results);
+        callback({ array: results, id: null, success: true });
+      });
+    },
+
+    finalizadasTutor: (connection, idTutor, callback) => {
+
+      let query = `
+        SELECT *  FROM solicitud WHERE solicitud_vigente=0 AND tutor_id = ${idTutor} ORDER BY solicitud_fecha_programacion DESC;
+      `;
+     
+      id = connection.query(query, (err, results) => {
+        if (err) {
+          callback({
+            array: null,
+            id: null,
+            success: false,
+            err: JSON.stringify(err),
+          });
+          return;
+        }
+        //console.log("Results son: "+results);
+        callback({ array: results, id: null, success: true });
+      });
+    },
+    finalizarAsesoria: (connection,body, callback) => {
+      //console.log("Llega: "+body.solicitud_fecha);
+      //let query = "insert into alumno_solicitud (alumno_id,solicitud_id,alumno_encargado,alumno_asistencia) VALUES ("+alumno_id+","+solicitud_id+",0,0)";
+     
+      let query = `UPDATE solicitud SET solicitud_vigente = 1,  asesoria_evidencia = '${body.evidencia}' WHERE solicitud_id = ${body.solicitud_id}`;
+      console.log(query);
+      connection.query(query, (err, results) => {
+        if (err) {
+          callback({
+            array: null,
+            id: null,
+            success: false,
+            err: JSON.stringify(err),
+          });
+          return;
+        }
+        callback({ array: null, id: null, success: true });
+      });
+    },
   };
   
