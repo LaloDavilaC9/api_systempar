@@ -470,7 +470,10 @@ module.exports = {
     finalizadasAlumno: (connection, idAlumno, callback) => {
 
       let query = `
-        SELECT s.* FROM solicitud s INNER JOIN alumno_solicitud a ON s.solicitud_id = a.solicitud_id WHERE a.alumno_id = ${idAlumno} AND s.solicitud_vigente = 0;;
+        SELECT s.* FROM solicitud s 
+        INNER JOIN alumno_solicitud a ON s.solicitud_id = a.solicitud_id
+        INNER JOIN tutor t ON s.tutor_id = t.tutor_id
+        WHERE a.alumno_id = ${idAlumno} AND s.solicitud_vigente = 0;
       `;
      
       id = connection.query(query, (err, results) => {
@@ -491,7 +494,11 @@ module.exports = {
     finalizadasTutor: (connection, idTutor, callback) => {
 
       let query = `
-        SELECT *  FROM solicitud WHERE solicitud_vigente=0 AND tutor_id = ${idTutor} ORDER BY solicitud_fecha_programacion DESC;
+        SELECT *  FROM solicitud s
+        INNER JOIN alumno_solicitud asol ON asol.solicitud_id = s.solicitud_id
+        INNER JOIN alumno a ON a.alumno_id = asol.alumno_id 
+        WHERE s.solicitud_vigente=0 AND s.tutor_id = ${idTutor} AND asol.alumno_encargado = 1;
+        ORDER BY solicitud_fecha_programacion DESC;
       `;
      
       id = connection.query(query, (err, results) => {
