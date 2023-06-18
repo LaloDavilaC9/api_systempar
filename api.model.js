@@ -247,10 +247,12 @@ module.exports = {
         // El que canceló fue el alumno
         query = `DELETE FROM alumno_solicitud WHERE solicitud_id = ${body.solicitud_id}`;
         query2 = `DELETE FROM solicitud WHERE solicitud_id = ${body.solicitud_id}`;
+        console.log("Canceló el alumno");
         console.log(query);
         console.log(query2);
       } else {
         //El que canceló fue el tutor
+        console.log("Canceló el tutor");
         query = `UPDATE solicitud SET tutor_id = NULL, solicitud_fecha_programacion = NULL, solicitud_lugar = NULL, 
         solicitud_rechazados = CONCAT_WS(',', IFNULL(solicitud_rechazados, ''), '${body.tutor_id}')
         WHERE solicitud_id = ${body.solicitud_id}`;
