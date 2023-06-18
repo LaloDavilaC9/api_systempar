@@ -182,6 +182,50 @@ router.get("/informacionGeneral/:idAlumno", [], (req, res) => {
   });
 });
 
+router.get("/informacionTutor/:idTutor", [], (req, res) => {
+  //console.log("Desde antes: "+req.params.usuario);
+  const idTutor = req.params.idTutor;
+  user.informacionTutor(connection, idTutor,(data) => {
+    res.json(data);
+  });
+});
+
+router.get("/materiasMenores/:idAlumno", [], (req, res) => {
+  //console.log("Desde antes: "+req.params.usuario);
+  const idAlumno = req.params.idAlumno;
+  user.materiasMenoresTutor(connection, idAlumno,(data) => {
+    res.json(data);
+  });
+});
+
+router.get("/materiasTutor/:idTutor", [], (req, res) => {
+  //console.log("Desde antes: "+req.params.usuario);
+  const idTutor = req.params.idTutor;
+  user.materiasTutor(connection, idTutor,(data) => {
+    res.json(data);
+  });
+});
+
+
+
+router.post(
+  "/registrarTutor",
+  (req, res) => {
+    
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      res.json({ success: false, err: JSON.stringify(errors) });
+      return;
+    }
+    let body = req.body;
+    
+    
+    user.registrarTutor(connection, body, (data) => {
+      res.json(data);
+
+    });
+  }
+);
 
   /*const responseData = {
           alumno_id: body.alumno_id,

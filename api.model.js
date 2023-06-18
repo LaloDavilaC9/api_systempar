@@ -327,6 +327,124 @@ module.exports = {
       });
     },
 
+    informacionTutor: (connection, idTutor, callback) => {
+      let query = `
+      SELECT t.tutor_id, t.alumno_id, t.tutor_promedio,
+      t.tutor_fecha_inscripcion, t.tutor_fecha_finalizacion,
+      t.tutor_programa, t.tutor_programa_numero,
+      (
+          SELECT AVG(COALESCE(s.asesoria_calificacion, 0))
+          FROM solicitud s
+          WHERE s.tutor_id = t.tutor_id AND s.solicitud_vigente = 0
+      ) AS tutor_calificacion,
+      t.tutor_vigente
+      FROM tutor t
+      WHERE t.tutor_id = ${idTutor};
 
+      `;
+     
+      id = connection.query(query, (err, results) => {
+        if (err) {
+          callback({
+            array: null,
+            id: null,
+            success: false,
+            err: JSON.stringify(err),
+          });
+          return;
+        }
+        //console.log("Results son: "+results);
+        callback({ array: results, id: null, success: true });
+      });
+    },
+
+    materiasMenoresTutor: (connection, idAlumno, callback) => {
+
+      let query = `
+      SELECT m.materia_id, m.materia_nombre
+      FROM materia m
+      JOIN materia_plan mp ON m.materia_id = mp.materia_id
+      JOIN alumno a ON mp.semestre < a.alumno_semestre
+      WHERE a.alumno_id = ${idAlumno};      
+      `;
+     
+      id = connection.query(query, (err, results) => {
+        if (err) {
+          callback({
+            array: null,
+            id: null,
+            success: false,
+            err: JSON.stringify(err),
+          });
+          return;
+        }
+        //console.log("Results son: "+results);
+        callback({ array: results, id: null, success: true });
+      });
+    },
+
+    materiasTutor: (connection, idTutor, callback) => {
+
+      let query = `
+      SELECT m.materia_nombre, m.materia_id FROM  materia m 
+      INNER JOIN Materia_Tutor mt ON m.materia_id = mt.materia_id WHERE mt.tutor_id = ${idTutor};      
+      `;
+     
+      id = connection.query(query, (err, results) => {
+        if (err) {
+          callback({
+            array: null,
+            id: null,
+            success: false,
+            err: JSON.stringify(err),
+          });
+          return;
+        }
+        //console.log("Results son: "+results);
+        callback({ array: results, id: null, success: true });
+      });
+    },
+
+    registrarTutor: (connection,body, callback) => {
+      //console.log("Llega: "+body.solicitud_fecha);
+      //let query = "insert into alumno_solicitud (alumno_id,solicitud_id,alumno_encargado,alumno_asistencia) VALUES ("+alumno_id+","+solicitud_id+",0,0)";
+      let materias = body.materias
+
+      const tutorData = {
+        alumno_id: body.alumno_id,
+        tutor_promedio: body.promedio,
+        tutor_fecha_inscripcion: body.fecha_inscripcion,
+        tutor_programa: body.programa,
+        tutor_programa_numero: 1,
+        tutor_calificacion: 0,
+        tutor_vigente: 1,
+      };
+
+
+      connection.query("INSERT INTO tutor SET ?", tutorData, (err, results) => {
+        const tutorId = results.insertId;
+
+        // Insertar las materias asociadas al tutor en la tabla `materia_tutor`
+        const materiaTutorData = materias.map((materia) => [
+          tutorId,
+          materia.materia_id,
+          materia.promedio_materia,
+        ]);
+
+        console.log(materiaTutorData)
+        connection.query(
+          'INSERT INTO materia_tutor (tutor_id, materia_id, promedio_materia) VALUES ?',
+          [materiaTutorData],
+          (err, result) => {
+            if (err) {
+              console.error('Error al insertar las materias del tutor: ', err);
+            } else {
+              console.log('Materias del tutor insertadas correctamente.');
+              callback({ array: null, id: null, success: true });
+            }
+          }
+        );
+      });
+    },
   };
   
