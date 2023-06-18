@@ -171,8 +171,14 @@ module.exports = {
     },
 
     enProcesoTutor: (connection, tutor_id, callback) => {
-      let query = "SELECT s.*, m.materia_nombre, CONCAT(a.alumno_nombre, ' ', a.alumno_apellidos) AS tutor_nombre_completo, a.alumno_correo, a.alumno_telefono FROM solicitud s JOIN materia m ON s.materia_id = m.materia_id JOIN alumno a ON a.alumno_id = s.tutor_id WHERE s.tutor_id = "+tutor_id+" AND s.solicitud_fecha_programacion IS NULL;";
-     
+      let query = `
+      SELECT s.*, m.materia_nombre, CONCAT(a.alumno_nombre, ' ', a.alumno_apellidos) AS tutor_nombre_completo, 
+      a.alumno_correo, a.alumno_telefono FROM solicitud s INNER JOIN materia m ON s.materia_id = m.materia_id
+      INNER JOIN tutor t ON t.tutor_id = s.tutor_id INNER JOIN alumno a ON a.alumno_id = t.alumno_id
+      WHERE s.tutor_id = ${tutor_id}
+      AND s.solicitud_fecha_programacion IS NULL;
+      `;
+     console.log(query);
       id = connection.query(query, (err, results) => {
         if (err) {
           callback({
