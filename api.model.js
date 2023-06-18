@@ -23,7 +23,7 @@ module.exports = {
 
     enProcesoAlumno: (connection, id_Alumno,callback) => {
       let query = "SELECT m.materia_nombre, CONCAT(a.alumno_nombre, ' ', a.alumno_apellidos) AS tutor_nombre_completo, a.alumno_telefono, a.alumno_correo, s.solicitud_descripcion, s.solicitud_id, s.solicitud_tema, "+
-      "s.solicitud_modalidad, s.solicitud_lugar, s.solicitud_urgencia FROM solicitud AS s INNER JOIN materia AS m ON s.materia_id = m.materia_id "+
+      "s.solicitud_modalidad, s.solicitud_lugar, s.solicitud_urgencia, s.solicitud_fecha FROM solicitud AS s INNER JOIN materia AS m ON s.materia_id = m.materia_id "+
       "LEFT JOIN tutor AS t ON s.tutor_id = t.tutor_id LEFT JOIN alumno AS a ON t.alumno_id = a.alumno_id WHERE s.solicitud_fecha_programacion IS NULL AND EXISTS "+
       "(SELECT 1 FROM alumno_solicitud AS al WHERE al.solicitud_id = s.solicitud_id AND al.alumno_id = "+id_Alumno+");";
       console.log(query);
@@ -43,7 +43,7 @@ module.exports = {
 
     proximasAlumno: (connection, id_Alumno,callback) => {
       let query = "SELECT m.materia_nombre, CONCAT(a.alumno_nombre, ' ', a.alumno_apellidos) AS tutor_nombre_completo, a.alumno_telefono, a.alumno_correo, s.solicitud_id, s.solicitud_descripcion, s.solicitud_tema, "+
-      "s.solicitud_modalidad, s.solicitud_lugar, s.solicitud_urgencia, s.solicitud_fecha_programacion FROM solicitud AS s INNER JOIN materia AS m ON s.materia_id = m.materia_id "+
+      "s.solicitud_modalidad, s.solicitud_lugar, s.solicitud_urgencia, s.solicitud_fecha_programacion, s.solicitud_fecha FROM solicitud AS s INNER JOIN materia AS m ON s.materia_id = m.materia_id "+
       "LEFT JOIN tutor AS t ON s.tutor_id = t.tutor_id LEFT JOIN alumno AS a ON t.alumno_id = a.alumno_id WHERE s.solicitud_fecha_programacion IS NOT NULL AND EXISTS "+
       "(SELECT 1 FROM alumno_solicitud AS al WHERE al.solicitud_id = s.solicitud_id AND al.alumno_id = "+id_Alumno+");";
       connection.query(query, (err, results) => {
