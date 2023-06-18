@@ -519,7 +519,7 @@ module.exports = {
       //console.log("Llega: "+body.solicitud_fecha);
       //let query = "insert into alumno_solicitud (alumno_id,solicitud_id,alumno_encargado,alumno_asistencia) VALUES ("+alumno_id+","+solicitud_id+",0,0)";
      
-      let query = `UPDATE solicitud SET solicitud_vigente = 1,  asesoria_evidencia = '${body.evidencia}' WHERE solicitud_id = ${body.solicitud_id}`;
+      let query = `UPDATE solicitud SET solicitud_vigente = 0,  asesoria_evidencia = '${body.evidencia}' WHERE solicitud_id = ${body.solicitud_id}`;
       console.log(query);
       connection.query(query, (err, results) => {
         if (err) {
