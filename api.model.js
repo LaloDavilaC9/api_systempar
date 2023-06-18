@@ -26,6 +26,7 @@ module.exports = {
       "s.solicitud_modalidad, s.solicitud_lugar, s.solicitud_urgencia FROM solicitud AS s INNER JOIN materia AS m ON s.materia_id = m.materia_id "+
       "LEFT JOIN tutor AS t ON s.tutor_id = t.tutor_id LEFT JOIN alumno AS a ON t.alumno_id = a.alumno_id WHERE s.solicitud_fecha_programacion IS NULL AND EXISTS "+
       "(SELECT 1 FROM alumno_solicitud AS al WHERE al.solicitud_id = s.solicitud_id AND al.alumno_id = "+id_Alumno+");";
+      console.log(query);
       connection.query(query, (err, results) => {
         if (err) {
           callback({
@@ -62,6 +63,7 @@ module.exports = {
     consultarMateriasParaSolicitud: (connection, idPlan, semestre, callback) => {
       //console.log("Body trae: "+body);
       let query = "SELECT * FROM Materia WHERE materia_id IN (SELECT materia_id FROM Materia_Plan WHERE plan_id = "+idPlan+" AND semestre = "+semestre+");";
+      console.log(query);
       connection.query(query, (err, results) => {
         if (err) {
           callback({
@@ -72,13 +74,13 @@ module.exports = {
           });
           return;
         }
-        //console.log("Results son: "+results);
+        console.log("Results son: "+results);
         callback({ array: results, id: null, success: true });
       });
     },
 
     crearSolicitud: (connection, body, alumno_id, callback) => {
-      console.log("Llega: "+body.solicitud_fecha);
+      //console.log("Llega: "+body.solicitud_fecha);
       let bodyFiltrado = body
       delete bodyFiltrado.alumno_id
       connection.query("insert into solicitud SET ?", bodyFiltrado, (err, results) => {
@@ -114,7 +116,7 @@ module.exports = {
 
     insertarAlumnoSolicitud: (connection, alumno_id,solicitud_id, callback) => {
       //console.log("Llega: "+body.solicitud_fecha);
-      let query = "insert into alumno_solicitud (alumno_id,solicitud_id,alumno_encargado,alumno_asistencia) VALUES ("+alumno_id+","+solicitud_id+",0,0)";
+      let query = "insert into alumno_solicitud (alumno_id,solicitud_id,alumno_encargado,alumno_asistencia) VALUES ("+alumno_id+","+solicitud_id+",1,0)";
       connection.query(query, (err, results) => {
         if (err) {
           callback({
@@ -276,5 +278,55 @@ module.exports = {
         callback({ array: null, id: null, success: true });
       });
     },
+
+
+    //PETICIONES DE CYNTHIA
+    alumnosInvitados: (connection,body, callback) => {
+      //console.log("Llega: "+body.solicitud_fecha);
+      //let query = "insert into alumno_solicitud (alumno_id,solicitud_id,alumno_encargado,alumno_asistencia) VALUES ("+alumno_id+","+solicitud_id+",0,0)";
+      let alumnosIds = body.alumnosIds;
+      console.log(body);
+      let query = `INSERT INTO alumno_solicitud (alumno_id, solicitud_id, alumno_encargado, alumno_asistencia) VALUES ?;`;
+      const values = alumnosIds.map(alumnoId => [alumnoId, body.solicitud_id, 0, 0]);
+      console.log(query);
+
+
+      connection.query(query, [values], (err, results) => {
+        if (err) {
+          callback({
+            array: null,
+            id: null,
+            success: false,
+            err: JSON.stringify(err),
+          });
+          return;
+        }
+        callback({ array: null, id: null, success: true });
+      });
+    },
+
+    informacionGeneral: (connection, idAlumno, callback) => {
+      let query = `
+      SELECT p.*, carr.*, cent.* FROM Alumno AS al INNER JOIN plan_estudio AS p ON al.plan_id = p.plan_id INNER JOIN carrera AS 
+      carr ON carr.carrera_id = p.carrera_id 
+      INNER JOIN centro AS cent ON carr.centro_id = cent.centro_id WHERE al.alumno_id = ${idAlumno};
+      `;
+     
+      id = connection.query(query, (err, results) => {
+        if (err) {
+          callback({
+            array: null,
+            id: null,
+            success: false,
+            err: JSON.stringify(err),
+          });
+          return;
+        }
+        //console.log("Results son: "+results);
+        callback({ array: results, id: null, success: true });
+      });
+    },
+
+
   };
   

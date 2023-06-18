@@ -152,6 +152,36 @@ router.post(
 );
 
 
+//PETICIONES DE CYNTHIA
+router.post(
+  "/alumnosInvitados",
+  (req, res) => {
+    
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      res.json({ success: false, err: JSON.stringify(errors) });
+      return;
+    }
+    let body = req.body;
+  
+    user.alumnosInvitados(connection, body, (data) => {
+      res.json(data);
+
+    });
+  }
+);
+
+
+
+
+router.get("/informacionGeneral/:idAlumno", [], (req, res) => {
+  //console.log("Desde antes: "+req.params.usuario);
+  const idAlumno = req.params.idAlumno;
+  user.informacionGeneral(connection, idAlumno,(data) => {
+    res.json(data);
+  });
+});
+
 
   /*const responseData = {
           alumno_id: body.alumno_id,
