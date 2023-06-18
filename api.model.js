@@ -475,7 +475,7 @@ module.exports = {
         INNER JOIN tutor t ON s.tutor_id = t.tutor_id
         WHERE a.alumno_id = ${idAlumno} AND s.solicitud_vigente = 0;
       `;
-     
+     console.log(query);
       id = connection.query(query, (err, results) => {
         if (err) {
           callback({
@@ -497,10 +497,10 @@ module.exports = {
         SELECT *  FROM solicitud s
         INNER JOIN alumno_solicitud asol ON asol.solicitud_id = s.solicitud_id
         INNER JOIN alumno a ON a.alumno_id = asol.alumno_id 
-        WHERE s.solicitud_vigente=0 AND s.tutor_id = ${idTutor} AND asol.alumno_encargado = 1;
+        WHERE s.solicitud_vigente=0 AND s.tutor_id = ${idTutor} AND asol.alumno_encargado = 1
         ORDER BY solicitud_fecha_programacion DESC;
       `;
-     
+     console.log(query);
       id = connection.query(query, (err, results) => {
         if (err) {
           callback({
