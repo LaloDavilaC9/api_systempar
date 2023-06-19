@@ -481,8 +481,14 @@ module.exports = {
         INNER JOIN tutor t ON s.tutor_id = t.tutor_id
         WHERE a.alumno_id = ${idAlumno} AND s.solicitud_vigente = 0;
       `;
-     console.log(query);
-      id = connection.query(query, (err, results) => {
+
+      let query2 = "SELECT m.materia_nombre, CONCAT(a.alumno_nombre, ' ', a.alumno_apellidos) AS tutor_nombre_completo, a.alumno_telefono, a.alumno_correo, s.solicitud_id, s.solicitud_descripcion, s.solicitud_tema, "+
+      "s.solicitud_modalidad, s.solicitud_lugar, s.solicitud_urgencia, s.solicitud_fecha_programacion, s.solicitud_fecha FROM solicitud AS s INNER JOIN materia AS m ON s.materia_id = m.materia_id "+
+      "LEFT JOIN tutor AS t ON s.tutor_id = t.tutor_id LEFT JOIN alumno AS a ON t.alumno_id = a.alumno_id WHERE s.solicitud_vigente = 0 AND EXISTS "+
+      "(SELECT 1 FROM alumno_solicitud AS al WHERE al.solicitud_id = s.solicitud_id AND al.alumno_id = "+idAlumno+");";
+      
+     console.log(query2);
+      id = connection.query(query2, (err, results) => {
         if (err) {
           callback({
             array: null,
@@ -499,14 +505,28 @@ module.exports = {
 
     finalizadasTutor: (connection, idTutor, callback) => {
 
-      let query = `
+      /*let query = `
         SELECT *  FROM solicitud s
         INNER JOIN alumno_solicitud asol ON asol.solicitud_id = s.solicitud_id
         INNER JOIN alumno a ON a.alumno_id = asol.alumno_id 
         WHERE s.solicitud_vigente=0 AND s.tutor_id = ${idTutor} AND asol.alumno_encargado = 1
         ORDER BY solicitud_fecha_programacion DESC;
-      `;
-     console.log(query);
+      `;*/
+
+      let query2 = `
+      SELECT s.*, m.materia_nombre, CONCAT(a.alumno_nombre, ' ', a.alumno_apellidos) AS tutor_nombre_completo, 
+      a.alumno_correo, a.alumno_telefono FROM solicitud s 
+      
+      INNER JOIN materia m ON s.materia_id = m.materia_id
+      
+      INNER JOIN alumno_solicitud asol ON asol.solicitud_id = s.solicitud_id 
+      INNER JOIN alumno a ON a.alumno_id = asol.alumno_id
+      
+      WHERE s.tutor_id = ${idTutor}
+      AND s.solicitud_vigente = 0 AND asol.alumno_encargado = 1;`;
+
+
+     console.log(query2);
       id = connection.query(query, (err, results) => {
         if (err) {
           callback({
