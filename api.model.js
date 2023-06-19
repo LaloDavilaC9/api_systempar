@@ -57,7 +57,7 @@ module.exports = {
       INNER JOIN alumno AS a ON t.alumno_id = a.alumno_id
        WHERE s.solicitud_fecha_programacion IS NOT NULL AND EXISTS
       (SELECT 1 FROM alumno_solicitud AS al WHERE al.solicitud_id = s.solicitud_id 
-      AND al.alumno_id = ${id_Alumno} ) AND s.solicitud_vigente = 1
+      AND al.alumno_id = ${id_Alumno} AND al.alumno_encargado = 1) AND s.solicitud_vigente = 1
       ;`;
 
       console.log(query);
