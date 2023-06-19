@@ -225,8 +225,13 @@ module.exports = {
       INNER JOIN alumno a ON a.alumno_id = asol.alumno_id
       
       WHERE s.tutor_id = ${tutor_id}
-      AND s.solicitud_fecha_programacion IS NOT NULL;`;
-     
+      AND s.solicitud_fecha_programacion IS NOT NULL
+      AND s.solicitud_vigente = 1
+      AND asol.alumno_encargado = 1;
+      ;`;
+     //      AND asol.alumno_encargado = 1;
+     console.log("hola");
+      console.log(query);
       id = connection.query(query, (err, results) => {
         if (err) {
           callback({
