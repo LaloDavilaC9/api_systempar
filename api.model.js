@@ -486,20 +486,29 @@ module.exports = {
 
     finalizadasAlumno: (connection, idAlumno, callback) => {
 
-      let query = `
-        SELECT s.* FROM solicitud s 
-        INNER JOIN alumno_solicitud a ON s.solicitud_id = a.solicitud_id
-        INNER JOIN tutor t ON s.tutor_id = t.tutor_id
-        WHERE a.alumno_id = ${idAlumno} AND s.solicitud_vigente = 0;
-      `;
+   
 
       let query2 = "SELECT m.materia_nombre, CONCAT(a.alumno_nombre, ' ', a.alumno_apellidos) AS tutor_nombre_completo, a.alumno_telefono, a.alumno_correo, s.solicitud_id, s.solicitud_descripcion, s.solicitud_tema, "+
       "s.solicitud_modalidad, s.solicitud_lugar, s.solicitud_urgencia, s.solicitud_fecha_programacion, s.solicitud_fecha FROM solicitud AS s INNER JOIN materia AS m ON s.materia_id = m.materia_id "+
       "LEFT JOIN tutor AS t ON s.tutor_id = t.tutor_id LEFT JOIN alumno AS a ON t.alumno_id = a.alumno_id WHERE s.solicitud_vigente = 0 AND EXISTS "+
       "(SELECT 1 FROM alumno_solicitud AS al WHERE al.solicitud_id = s.solicitud_id AND al.alumno_id = "+idAlumno+");";
       
-     console.log(query2);
-      id = connection.query(query2, (err, results) => {
+      let query = `
+      SELECT m.materia_nombre, CONCAT(a.alumno_nombre, ' ', a.alumno_apellidos) AS tutor_nombre_completo, 
+      a.alumno_telefono, a.alumno_correo, s.solicitud_id, s.solicitud_descripcion, s.solicitud_tema, 
+      s.solicitud_modalidad, s.solicitud_lugar, s.solicitud_urgencia, s.solicitud_fecha_programacion,
+      s.solicitud_fecha FROM solicitud AS s 
+      
+      INNER JOIN materia AS m ON s.materia_id = m.materia_id 
+      INNER JOIN tutor AS t ON s.tutor_id = t.tutor_id 
+      INNER JOIN alumno AS a ON t.alumno_id = a.alumno_id
+       WHERE s.solicitud_fecha_programacion IS NOT NULL AND EXISTS
+      (SELECT 1 FROM alumno_solicitud AS al WHERE al.solicitud_id = s.solicitud_id 
+      AND al.alumno_id = ${id_Alumno} AND al.alumno_encargado = 1) AND s.solicitud_vigente = 0
+      ;`;
+
+     console.log(query1);
+      id = connection.query(query1, (err, results) => {
         if (err) {
           callback({
             array: null,
