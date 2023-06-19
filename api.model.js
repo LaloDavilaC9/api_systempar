@@ -1,3 +1,6 @@
+const { log } = require("console");
+const conexion = require("./conexion");
+
 module.exports = {
     
     login: (connection, id_Alumno,callback) => {
@@ -94,44 +97,42 @@ module.exports = {
       });
     },
 
-    crearSolicitud: (connection, body, alumno_id, callback) => {
+    crearSolicitud: async (connection, body, alumno_id, callback) => {
       //console.log("Llega: "+body.solicitud_fecha);
       let bodyFiltrado = body
       delete bodyFiltrado.alumno_id
-      connection.query("insert into solicitud SET ?", bodyFiltrado, (err, results) => {
-        if (err) {
-          callback({
-            array: null,
-            id: null,
-            success: false,
-            err: JSON.stringify(err),
-          });
-          return;
-        }
-        callback({ array: null, id: null, success: true });
-      });
+
+      try {
+        await connection.promise().query('INSERT INTO solicitud SET solicitud_fecha = "2023-06-14 18:47:05", solicitud_urgencia = "U", materia_id=6001, solicitud_tema = "Esssss", solicitud_descripcion="hola", solicitud_modalidad="P", solicitud_vigente=0;')  
+        callback({ array: null, id: null, success: true });      
+      } catch (err) {
+        callback({ array: null, id: null, success: false, err: JSON.stringify(err) });      
+      }
+
+      // connection.query("insert into solicitud SET ?", bodyFiltrado, (err, results) => {
+      //   if (err) {
+      //     callback({
+      //       array: null,
+      //       id: null,
+      //       success: false,
+      //       err: JSON.stringify(err),
+      //     });
+      //     return;
+      //   }
+      //   callback({ array: null, id: null, success: true });
+      // });
     },
 
     ultimaSolicitud: (connection, alumno_id, callback) => {
-      let query = "SELECT * FROM SOLICITUD ORDER BY solicitud_id DESC LIMIT 1";
-      id = connection.query(query, (err, results) => {
-        if (err) {
-          callback({
-            array: null,
-            id: null,
-            success: false,
-            err: JSON.stringify(err),
-          });
-          return;
-        }
-        //console.log("Results son: "+results);
-        callback({ array: results, id: null, success: true });
-      });
-    },
+      let query = "SELECT * FROM SOLICITUD ORDER BY solicitud_id DESC LIMIT 1;";
 
-    insertarAlumnoSolicitud: (connection, alumno_id,solicitud_id, callback) => {
-      //console.log("Llega: "+body.solicitud_fecha);
-      let query = "insert into alumno_solicitud (alumno_id,solicitud_id,alumno_encargado,alumno_asistencia) VALUES ("+alumno_id+","+solicitud_id+",1,0)";
+      // try {
+      //   id = await connection.promise().query(query)  
+      //   callback({ array: results, id: null, success: true });      
+      // } catch (err) {
+      //   callback({ array: null, id: null, success: false, err: JSON.stringify(err) });      
+      // }
+
       connection.query(query, (err, results) => {
         if (err) {
           callback({
@@ -142,8 +143,33 @@ module.exports = {
           });
           return;
         }
-        callback({ array: null, id: null, success: true });
+        callback({ array: results, id: null, success: true });
       });
+    },
+
+    insertarAlumnoSolicitud: async (connection, alumno_id,solicitud_id, callback) => {
+      //console.log("Llega: "+body.solicitud_fecha);
+      let query = "insert into alumno_solicitud (alumno_id,solicitud_id,alumno_encargado,alumno_asistencia) VALUES ("+alumno_id+","+solicitud_id+",1,0)";
+
+      try {
+        await connection.promise().query(query)  
+        callback({ array: null, id: null, success: true });      
+      } catch (err) {
+        callback({ array: null, id: null, success: false, err: JSON.stringify(err) });      
+      }
+
+      // connection.query(query, (err, results) => {
+      //   if (err) {
+      //     callback({
+      //       array: null,
+      //       id: null,
+      //       success: false,
+      //       err: JSON.stringify(err),
+      //     });
+      //     return;
+      //   }
+      //   callback({ array: null, id: null, success: true });
+      // });
     },
 
     
@@ -581,6 +607,31 @@ module.exports = {
         callback({ array: results, id: null, success: true });
       });
     },
+
+    test: (connection, id_Alumno,callback) => {
+      //console.log("ALUMNO "+id_Alumno);
+      //let query = "SELECT s.solicitud_id, s.solicitud_fecha, s.solicitud_urgencia, m.materia_nombre, s.solicitud_tema, s.solicitud_descripcion, s.solicitud_fecha_programacion, s.solicitud_lugar, s.solicitud_modalidad, s.solicitud_vigente, s.asesoria_evidencia, s.asesoria_calificacion, mt.tutor_id FROM solicitud s JOIN materia_tutor mt ON s.materia_id = mt.materia_id JOIN materia m ON mt.materia_id = m.materia_id WHERE mt.tutor_id = 1 AND EXISTS (SELECT 1 FROM Alumno WHERE alumno_id = "+ id_Alumno+");"
+      let query = "SELECT * FROM solicitud ORDER BY solicitud_id DESC LIMIT 1;";
+    //"SELECT * FROM Alumno WHERE alumno_id = "+id_Alumno;
+      //let query = "select id from administradores where usuario ='lalodavilac9'";
+      console.log("pre query");
+      console.log(query);
+      connection.query(query, (err, results) => {
+        if (err) {
+          console.log(err);
+          callback({
+            array: null,
+            id: null,
+            success: false,
+            err: JSON.stringify(err),
+          });
+          return;
+        }
+        console.log("Results son: " + results);
+        callback({ array: results, id: null, success: true });
+      });
+    },
+
     finalizarAsesoria: (connection,body, callback) => {
       //console.log("Llega: "+body.solicitud_fecha);
       //let query = "insert into alumno_solicitud (alumno_id,solicitud_id,alumno_encargado,alumno_asistencia) VALUES ("+alumno_id+","+solicitud_id+",0,0)";

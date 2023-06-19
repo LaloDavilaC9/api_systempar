@@ -2,6 +2,7 @@ const express = require("express");
 const user = require("../api.model");
 const connection = require("../conexion");
 const { body, param, validationResult } = require("express-validator");
+const { log } = require("console");
 var router = express.Router();
 
 
@@ -84,14 +85,21 @@ router.post(
     //body.telefono = body.telefono.replaceAll(" ","");
     //console.log("Llega ");
     //console.log(body.alumno_id);
-    let alumno_id = body.alumno_id
-    user.crearSolicitud(connection, body, alumno_id, (data) => {
-      user.ultimaSolicitud(connection,alumno_id,(ultimaSolicitudData) =>{
-        user.insertarAlumnoSolicitud(connection,alumno_id,ultimaSolicitudData.array[0].solicitud_id,(insertAlumnoData) =>{
-          res.json(insertAlumnoData);
-        });
-      });
+    let alumno_id = body.alumno_id;
+
+    user.test(connection, alumno_id,(data) => {
+      res.json(data);
     });
+
+    // user.crearSolicitud(connection, body, alumno_id, (data) => {
+      //user.ultimaSolicitud(connection,alumno_id,(ultimaSolicitudData) =>{
+        // console.log(ultimaSolicitudData);
+        // res.json(ultimaSolicitudData);
+    //   //   user.insertarAlumnoSolicitud(connection,alumno_id,ultimaSolicitudData.array[0].solicitud_id,(insertAlumnoData) =>{
+    //   //     res.json(insertAlumnoData);
+    //   //   });
+      //});
+    // });
   }
 );
 
