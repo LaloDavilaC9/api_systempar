@@ -1,0 +1,21 @@
+version: '3.8'
+
+networks:
+  mysql-network:
+    name: mysql-network
+    external: true
+
+services:
+  rest-server:
+    container_name: rest-server
+    build:
+      context: .
+    ports:
+      - 3000:3000
+    environment:
+      - SERVER_PORT=3000
+      - DB_SERVER_IP=mysql1
+      - DB_SERVER_PORT=3306
+    command: npm start
+    networks:
+      - mysql-network

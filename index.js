@@ -18,10 +18,10 @@ connection.connect((err, res) => {
   }
   console.log("Conexion exitosa a la base de datos");
 });
-app.listen(3000, (err, res) => {
+app.listen(process.env.SERVER_PORT, (err, res) => {
   if (err) {
     console.log("Error al levantar servidor");
     return;
   }
-  console.log("Apis escuchando en el puerto 3000");
+  console.log("Apis escuchando en el puerto " + process.env.SERVER_PORT);
 });
